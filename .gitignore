@@ -1,0 +1,17 @@
+# Node
+node_modules
+package-lock.json
+
+# Env
+.env
+
+# Builds
+dist
+build
+
+# Temp files
+tmp
+*.pdf
+
+# OS
+.DS_Store

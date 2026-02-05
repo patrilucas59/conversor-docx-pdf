@@ -1,0 +1,28 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "Backend para conversão DOCX para PDF",
+  "type": "module",
+  "main": "dist/server.ts",
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.ts"
+  },
+  "keywords": [],
+  "author": "Lucas Patrício",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "libreoffice-convert": "^1.8.1",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.1.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}
