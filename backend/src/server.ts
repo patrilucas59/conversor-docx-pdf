@@ -1,8 +1,8 @@
 import express from 'express';
-import router from './routes/convert.js';
+import router from './routes/convert';
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 

@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import multer from 'multer';
-import { convertDocxToPdf } from '../services/docxToPdf.js';
-import { safeUnlink } from '../utils/cleanup.js';
+import { convertDocxToPdf } from '../services/docxToPdf';
+import { safeUnlink } from '../utils/cleanup';
 
 const router = Router();
 const upload = multer({ dest: 'tmp/' });
