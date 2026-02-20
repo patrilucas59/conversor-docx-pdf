@@ -25,7 +25,7 @@ export function FileUpload({ onFileSelect }: FileUploadProps) {
       ${isDragActive ? "border-blue-500 bg-zinc-900" : "border-zinc-700"}
       `}
     >
-      <input {...getInputProps()}/>
+      <input {...getInputProps()} />
 
       <p className="text-zinc-400">
         {isDragActive ? "Solte o arquivo aqui..." : "Arraste seu arquivo ou clique para selecionar"}

@@ -4,7 +4,7 @@ export function Footer() {
       <div className="px-6 py-2 flex items-center justify-center text-sm text-zinc-500">
 
         <p className="text-center">
-          {new Date().getFullYear()} PDF Machine. Todos os direitos reservados.
+          © {new Date().getFullYear()} PDF Machine | Todos os direitos reservados | Lucas Patrício
         </p>
 
       </div>
