@@ -7,9 +7,9 @@ export function Hero() {
       <div className="max-w-2xl space-y-6">
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Converta arquivos DOCX em PDF
-        <span className="block text-zinc-400 text-3xl mt-2">
+        <small className="block text-zinc-400 text-3xl mt-2">
           rápido, simples e seguro
-        </span>
+        </small>
         </h2>
 
         <p className="text-zinc-400 text-lg">
@@ -23,9 +23,6 @@ export function Hero() {
           </Button>
         </div>
 
-        <p className="text-xs text-zinc-500 mt-4">
-          Seus arquivos não são armazenados.
-        </p>
       </div>
     </section>
     </main>
