@@ -1,30 +1,36 @@
+import { useState } from "react";
 import { Button } from "../components/ui/Button";
+import { FileUpload } from "../components/upload/FileUpload";
 
 export function Hero() {
+  const [file, setFile] = useState<File | null>(null)
+
   return (
-    <main className="flex-1">
     <section className="w-full flex flex-col items-center text-center px-6 py-10">
       <div className="max-w-2xl space-y-6">
+
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Converta arquivos DOCX em PDF
-        <small className="block text-zinc-400 text-3xl mt-2">
+        <span className="block text-zinc-400 text-3xl mt-2">
           rápido, simples e seguro
-        </small>
+        </span>
         </h2>
 
-        <p className="text-zinc-400 text-lg">
-          Faça upload do seu arquivo .docx e receba o PDF instantaneamente.
-          Nenhum arquivo é armazenado em nossos serviços.
-        </p>
+        <FileUpload onFileSelect={setFile} />
 
-        <div className="mt-8">
+        {file && (
+          <div className="space-y-4">
+            <p className="text-sm text-zinc-400">
+              Arquivo selecionado: {" "} <strong className="text-white">{file.name}</strong>
+            </p>
+
           <Button>
-            Selecionar arquivo
+            Converter
           </Button>
-        </div>
+          </div>
+        )}
 
       </div>
     </section>
-    </main>
   )
 }
