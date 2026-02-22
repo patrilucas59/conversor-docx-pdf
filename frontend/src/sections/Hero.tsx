@@ -1,30 +1,44 @@
 import { useState } from "react";
 import { Button } from "../components/ui/Button";
 import { FileUpload } from "../components/upload/FileUpload";
+import { convertDocxToPdf } from "../services/api";
 
 type UploadState = "idle" | "ready" | "converting" | "done"
 
 export function Hero() {
-  const [file, setFile] = useState<File | null>(null)
-  const [state, setState] = useState<UploadState>("idle")
+  const [file, setFile] = useState<File | null>(null);
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
+  const [state, setState] = useState<UploadState>("idle");
 
   function handleFileSelect(selectedFile: File) {
-    setFile(selectedFile)
-    setState("ready")
+    setFile(selectedFile);
+    setPdfBlob(null);
+    setState("ready");
   }
 
   async function handleConvert() {
-    if (!file) return
+    if (!file) return;
 
-    setState("converting")
+    setState("converting");
 
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    setState("done")
+    try {
+    const blob = await convertDocxToPdf(file);
+    setPdfBlob(blob);
+    setState("done");
+  } catch (error) {
+    console.error(error);
+    setState("ready");
   }
+}
 
   function handleDownload() {
-    alert("Download iniciado! (simulação)")
+    if (!pdfBlob || !file) return;
+
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name.replace(".docx", ".pdf");
+    a.click(); 
   }
 
   return (
@@ -42,7 +56,8 @@ export function Hero() {
 
         {file && (
             <p className="text-sm text-zinc-400">
-              Arquivo selecionado: {" "} <strong className="text-white">{file.name}</strong>
+              Arquivo selecionado:{" "} 
+                <strong className="text-white">{file.name}</strong>
             </p>
           )}
 

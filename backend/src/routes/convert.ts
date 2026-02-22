@@ -3,25 +3,33 @@ import multer from 'multer';
 import { convertDocxToPdf } from '../services/docxToPdf';
 import { safeUnlink } from '../utils/cleanup';
 
-const router = Router();
+const convertRouter = Router();
 const upload = multer({ dest: 'tmp/' });
 
-router.post('/', upload.single('file'), async (req: Request, res: Response) => {
+convertRouter.post('/', upload.single('file'), async (req: Request, res: Response) => {
   if (!req.file) {
     return res.status(400).json({ error: 'Arquivo não enviado' });
   }
+  console.log("arquivo recebido:", req.file.path);
 
   let pdfPath: string | null = null;
 
   try {
     pdfPath = await convertDocxToPdf(req.file.path);
-    res.download(pdfPath);
-  } catch {
-    res.status(500).json({ error: 'Erro ao converter arquivo' });
-  } finally {
     safeUnlink(req.file.path);
-    if (pdfPath) safeUnlink(pdfPath);
-  }
+    res.download(pdfPath, (err) => {
+      if (pdfPath) safeUnlink(pdfPath);
+      
+      if (err) {
+        console.error("Erro ao enviar arquivo:", err);
+      }
+    });
+    
+  } catch (error) {
+  console.error(error);
+  res.status(500).json({ error: 'Erro ao converter arquivo' });
+}
+
 });
 
-export default router;
+export default convertRouter;
