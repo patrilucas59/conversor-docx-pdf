@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "../components/ui/Button";
 import { FileUpload } from "../components/upload/FileUpload";
 import { convertDocxToPdf } from "../services/api";
+import { useSnackbar } from "notistack";
 
 type UploadState = "idle" | "ready" | "converting" | "done"
 
@@ -9,6 +10,8 @@ export function Hero() {
   const [file, setFile] = useState<File | null>(null);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [state, setState] = useState<UploadState>("idle");
+
+  const { enqueueSnackbar } = useSnackbar();
 
   function handleFileSelect(selectedFile: File) {
     setFile(selectedFile);
@@ -25,9 +28,9 @@ export function Hero() {
     const blob = await convertDocxToPdf(file);
     setPdfBlob(blob);
     setState("done");
-  } catch (error) {
-    console.error(error);
+  } catch {
     setState("ready");
+    enqueueSnackbar("Erro ao converter o arquivo. Por favor, tente novamente.", { variant: "error" })
   }
 }
 
@@ -38,7 +41,13 @@ export function Hero() {
     const a = document.createElement("a");
     a.href = url;
     a.download = file.name.replace(".docx", ".pdf");
-    a.click(); 
+    a.click();
+    
+    URL.revokeObjectURL(url);
+
+    setState("idle");
+    setFile(null);
+    setPdfBlob(null);
   }
 
   return (
@@ -61,6 +70,7 @@ export function Hero() {
             </p>
           )}
 
+      <div className="flex justify-center">
         {state === "ready" && (
           <Button onClick={handleConvert}>
             Converter
@@ -68,16 +78,27 @@ export function Hero() {
         )}
 
         {state === "converting" && (
-          <Button isPending disabled>
+          <Button isPending loadingPosition="start" disabled>
             Convertendo...
           </Button>
         )}
 
         {state === "done" && (
+        <div className="flex items-center flex-col gap-4">
+          <p className="text-green-400 text-sm">
+            Conversão concluída com sucesso!
+          </p>
           <Button color="success" onClick={handleDownload}>
             Baixar PDF
           </Button>
+        </div>
         )}
+        </div>
+
+        <p className="text-sm text-zinc-400 max-w-md mx-auto">
+          Converta gratuitamente <span className="text-white font-bold">1 arquivo DOCX</span> por vez.
+          Seus arquivos não são armazenados e são excluídos automaticamente após a conversão.
+        </p>
 
       </div>
     </section>

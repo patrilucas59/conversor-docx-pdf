@@ -4,10 +4,10 @@ import { Hero } from './sections/Hero'
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-zinc-900 text-zinc-100 flex flex-col">
+    <div className="h-screen bg-zinc-900 text-zinc-100 flex flex-col overflow-hidden">
       <Header />
 
-      <main className="flex-1">
+      <main className="flex-1 overflow-y-auto custom-scroll">
         <Hero />
       </main>
 
