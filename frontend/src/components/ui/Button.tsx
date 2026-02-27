@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from "react";
 
 type ButtonVariant = 'solid' | 'outline'
 type ButtonColor = 'primary' | 'success' | 'error'
-type LoadingPosition = 'start' | 'start'
+type LoadingPosition = 'start'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: ButtonVariant;
@@ -22,7 +22,8 @@ export function Button({
     variant = 'solid', 
     color = 'primary', 
     isPending = false, 
-    disabled, 
+    disabled,
+    loadingPosition = 'start',
     ...props
 }: ButtonProps) {
 
@@ -37,12 +38,17 @@ export function Button({
         outline: 'bg-transparent border border-current',
     }
 
+    const loadingPositions = {
+        start: 'flex-row',
+    }
+
     return (
         <button
         className={`px-4 py-2 rounded font-medium transition
         flex items-center justify-center gap-2
         ${colors[color]}
         ${variants[variant]}
+        ${loadingPositions[loadingPosition]}
         disabled:opacity-70 disabled:cursor-not-allowed
         `}
         disabled={disabled || isPending}

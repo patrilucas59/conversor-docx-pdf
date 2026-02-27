@@ -13,6 +13,10 @@ export function Hero() {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const isIdle = state === "idle";
+  const isConverting = state === "converting";
+  const isDone = state === "done";
+
   function handleFileSelect(selectedFile: File) {
     setFile(selectedFile);
     setPdfBlob(null);
@@ -50,9 +54,16 @@ export function Hero() {
     setPdfBlob(null);
   }
 
+  const buttonConfig = {
+    label: isConverting ? "Convertendo..."  : isDone ? "Baixar PDF": "Converter",
+    onClick: isDone ? handleDownload : handleConvert,
+    isPending: isConverting,
+    disabled: isConverting,
+  }
+
   return (
     <section className="w-full flex flex-col items-center text-center px-6 py-10">
-      <div className="max-w-2xl space-y-6">
+      <div className="max-w-2xl space-y-5">
 
         <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
           Converta arquivos DOCX em PDF
@@ -70,30 +81,23 @@ export function Hero() {
             </p>
           )}
 
-      <div className="flex justify-center">
-        {state === "ready" && (
-          <Button onClick={handleConvert}>
-            Converter
-          </Button>
+        {!isIdle && (
+          <div className="flex justify-center">
+            <Button 
+              onClick={buttonConfig.onClick}
+              isPending={buttonConfig.isPending}
+              disabled={buttonConfig.disabled}
+              >
+              {buttonConfig.label}
+            </Button>
+          </div>
         )}
 
-        {state === "converting" && (
-          <Button isPending loadingPosition="start" disabled>
-            Convertendo...
-          </Button>
-        )}
-
-        {state === "done" && (
-        <div className="flex items-center flex-col gap-4">
+        {isDone && (
           <p className="text-green-400 text-sm">
             Conversão concluída com sucesso!
           </p>
-          <Button color="success" onClick={handleDownload}>
-            Baixar PDF
-          </Button>
-        </div>
         )}
-        </div>
 
         <p className="text-sm text-zinc-400 max-w-md mx-auto">
           Converta gratuitamente <span className="text-white font-bold">1 arquivo DOCX</span> por vez.
