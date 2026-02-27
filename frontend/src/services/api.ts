@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-    baseURL: 'http://localhost:3000',
+    baseURL: 'https://conversor-docx-pdf.onrender.com',
 })
 
 export async function convertDocxToPdf(file: File): Promise<Blob> {
