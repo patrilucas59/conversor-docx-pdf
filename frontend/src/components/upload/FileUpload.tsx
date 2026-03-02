@@ -1,11 +1,17 @@
-import { useDropzone } from "react-dropzone";
+import { useDropzone, type FileRejection } from "react-dropzone";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
+  onInvalidFile: () => void;
 }
 
-export function FileUpload({ onFileSelect }: FileUploadProps) {
-  const onDrop = (acceptedFiles: File[]) => {
+export function FileUpload({ onFileSelect, onInvalidFile }: FileUploadProps) {
+  const onDrop = (acceptedFiles: File[], fileRejections: FileRejection[]) => {
+    if (fileRejections.length > 0) {
+      onInvalidFile();
+      return;
+    }
+
     if (acceptedFiles.length > 0) {
       onFileSelect(acceptedFiles[0])
     }

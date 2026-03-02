@@ -34,7 +34,10 @@ export function Hero() {
     setState("done");
   } catch {
     setState("ready");
-    enqueueSnackbar("Erro ao converter o arquivo. Por favor, tente novamente.", { variant: "error" })
+    enqueueSnackbar(
+      "Erro ao converter o arquivo. Por favor, tente novamente.", 
+      { variant: "error" }
+    );
   }
 }
 
@@ -72,7 +75,14 @@ export function Hero() {
         </span>
         </h2>
 
-        <FileUpload onFileSelect={handleFileSelect} />
+        <FileUpload 
+          onFileSelect={handleFileSelect}
+          onInvalidFile={() => 
+            enqueueSnackbar("Apenas documentos DOCX podem ser adicionados ´para conversão.", { 
+              variant: "warning"
+             })
+          } 
+        />
 
         {file && (
             <p className="text-sm text-zinc-400">
