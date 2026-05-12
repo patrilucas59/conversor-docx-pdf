@@ -1,11 +1,10 @@
-import fs from 'fs';
+import { access, unlink } from "fs/promises";
 
-export function safeUnlink(filePath: string) {
+export async function safeUnlink(filePath: string): Promise<void> {
   try {
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
+    await access(filePath);
+    await unlink(filePath);
   } catch (error) {
-    console.error('Erro ao remover arquivo:', filePath);
+    console.error(`Erro ao remover arquivo: ${filePath}`);
   }
 }
