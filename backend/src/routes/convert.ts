@@ -1,50 +1,55 @@
-import { Router, type Request, type Response } from 'express';
-import multer from 'multer';
+import { Router } from "express";
+import Busboy from "busboy";
+import fs from 'fs';
 import path from 'path';
-import { convertDocxToPdf } from '../services/docxToPdf';
-import { safeUnlink } from '../utils/cleanup';
+import os from 'os';
 
-const convertRouter = Router();
-const upload = multer({ dest: 'tmp/', fileFilter: (req, file, cb) => {
-  const allowedMime = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+const router = Router();
 
-  if (file.mimetype !== allowedMime) {
-    return cb (new Error('Apenas arquivos .docx são permitidos'));
-  }
+router.post('/', (req, res) => {
+  const busboy = Busboy({
+    headers: req.headers,
+  });
 
-  cb(null, true);
-},
+  let filePath = '';
+  let originalName = '';
+
+  busboy.on('file', (fieldName, file, info) => {
+    const { filename, mimeType } = info;
+
+    if (
+      mimeType !==
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ) {
+      return res.status(400).json({ error: 'Arquivo inválido' });
+    }
+
+    originalName = filename;
+
+    filePath = path.join(os.tmpdir(), filename);
+
+    const writeStream = fs.createWriteStream(filePath);
+
+    file.pipe(writeStream);
+
+    writeStream.on('close', async () => {
+      console.log('Arquivo foi salvo');
+    });
+  });
+
+  busboy.on('finish', async () => {
+    try {
+      res.json({
+        success: true,
+      });
+    } catch (error) {
+      res.status(500).json({
+        error: 'Erro na conversão',
+      });
+    }
+  });
+
+  req.pipe(busboy);
 });
 
-convertRouter.post('/', upload.single('file'), async (req: Request, res: Response) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'Arquivo não enviado' });
-  }
-
-  const originalName = path.parse(req.file.originalname).name;
-  const outputFileName = `${originalName}.pdf`;
-
-  try {
-    const pdfBuffer = await convertDocxToPdf(
-      req.file.path,
-      req.file.originalname
-    )
-
-    safeUnlink(req.file.path);
-
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="${outputFileName}"`,
-    );
-
-    return res.send(pdfBuffer);
-  } catch (error) {
-    console.error(error);
-    safeUnlink(req.file.path);
-    return res.status(500).json({ error: 'Erro ao converter arquivo.' });
-  }
-}
-);
-
-export default convertRouter;
+export default router;

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "busboy": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/busboy": "^1.5.4"
+  }
+}
