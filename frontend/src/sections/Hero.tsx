@@ -4,7 +4,7 @@ import { FileUpload } from "../components/upload/FileUpload";
 import { convertDocxToPdf } from "../services/api";
 import { useSnackbar } from "notistack";
 
-type UploadState = "idle" | "ready" | "converting" | "done"
+type UploadState = "idle" | "converting" | "done";
 
 export function Hero() {
   const [file, setFile] = useState<File | null>(null);
@@ -13,14 +13,13 @@ export function Hero() {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const isIdle = state === "idle";
   const isConverting = state === "converting";
   const isDone = state === "done";
 
   function handleFileSelect(selectedFile: File) {
     setFile(selectedFile);
     setPdfBlob(null);
-    setState("ready");
+    setState("idle");
   }
 
   async function handleConvert() {
@@ -33,7 +32,7 @@ export function Hero() {
     setPdfBlob(blob);
     setState("done");
   } catch {
-    setState("ready");
+    setState("idle");
     enqueueSnackbar(
       "Erro ao converter o arquivo. Por favor, tente novamente.", 
       { variant: "error" }
@@ -45,12 +44,13 @@ export function Hero() {
     if (!pdfBlob || !file) return;
 
     const url = URL.createObjectURL(pdfBlob);
+
     const a = document.createElement("a");
     a.href = url;
     a.download = file.name.replace(".docx", ".pdf");
     a.click();
-    
-    URL.revokeObjectURL(url);
+
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
 
     setState("idle");
     setFile(null);
@@ -91,17 +91,13 @@ export function Hero() {
             </p>
           )}
 
-        {!isIdle && (
-          <div className="flex justify-center">
             <Button 
               onClick={buttonConfig.onClick}
               isPending={buttonConfig.isPending}
-              disabled={buttonConfig.disabled}
+              disabled={!file || isConverting}
               >
               {buttonConfig.label}
             </Button>
-          </div>
-        )}
 
         {isDone && (
           <p className="text-green-400 text-sm">
