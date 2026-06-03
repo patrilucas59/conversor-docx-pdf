@@ -3,41 +3,28 @@ import Busboy from 'busboy';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { convertDocxToPdf } from '../services/docxToPdf';
 
 const router = Router();
 
 router.post('/', (req, res) => {
-  const busboy = Busboy({
-    headers: req.headers,
-  });
+  const busboy = Busboy({ headers: req.headers });
 
-  let filePath = '';
-  let originalName = '';
+  let filePath: string | null = null;
   let savePromise: Promise<void> | null = null;
 
-  busboy.on('file', (_fieldName: string, file: NodeJS.ReadableStream, info: Busboy.FileInfo) => {
-    const { filename } = info;
+  busboy.on('file', (_, file, info) => {
+    const filename = info.filename;
 
-    const isDocx = filename.toLowerCase().endsWith('.docx');
-
-    if (!isDocx) {
+    if (!filename.endsWith('.docx')) {
       file.resume();
-
-      return res.status(400).json({
-        error: 'Apenas arquivos DOCX são permitidos',
-      });
+      return;
     }
 
-    originalName = filename;
-
-    filePath = path.join(
-      os.tmpdir(),
-      `${Date.now()}-${filename}`
-    );
-
+    filePath = path.join(os.tmpdir(), `${Date.now()}-${filename}`);
     const writeStream = fs.createWriteStream(filePath);
 
-    savePromise = new Promise<void>((resolve, reject) => {
+    savePromise = new Promise((resolve, reject) => {
       writeStream.on('finish', resolve);
       writeStream.on('error', reject);
     });
@@ -47,34 +34,31 @@ router.post('/', (req, res) => {
 
   busboy.on('finish', async () => {
     try {
-      if (!savePromise) {
-        return res.status(400).json({
-          error: 'Nenhum arquivo recebido',
-        });
+      if (!savePromise || !filePath) {
+        return res.status(400).json({ error: 'Nenhum arquivo enviado' });
       }
 
       await savePromise;
 
-      return res.status(200).json({
-        success: true,
-        originalName,
-        filePath,
-      });
-    } catch (error) {
-      console.error(error);
+      const pdfBuffer = await convertDocxToPdf(filePath);
 
-      return res.status(500).json({
-        error: 'Erro ao salvar arquivo',
-      });
+      if (filePath && fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=arquivo.pdf');
+
+      return res.send(pdfBuffer);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ error: 'Erro na conversão' });
     }
   });
 
-  busboy.on('error', (error) => {
-    console.error(error);
-
-    return res.status(500).json({
-      error: 'Erro ao processar upload',
-    });
+  busboy.on('error', (err) => {
+    console.error(err);
+    return res.status(500).json({ error: 'Erro no upload' });
   });
 
   req.pipe(busboy);
