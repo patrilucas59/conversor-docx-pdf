@@ -15,7 +15,7 @@ router.post('/', (req, res) => {
   let originalName = '';
   let savePromise: Promise<void> | null = null;
 
-  busboy.on('file', (_, file, info) => {
+  busboy.on('file', (_fieldName: string, file: NodeJS.ReadableStream, info: Busboy.FileInfo) => {
     const { filename } = info;
 
     const isDocx = filename.toLowerCase().endsWith('.docx');
@@ -37,12 +37,8 @@ router.post('/', (req, res) => {
 
     const writeStream = fs.createWriteStream(filePath);
 
-    savePromise = new Promise((resolve, reject) => {
-      writeStream.on('finish', () => {
-        console.log('Arquivo salvo:', filePath);
-        resolve();
-      });
-
+    savePromise = new Promise<void>((resolve, reject) => {
+      writeStream.on('finish', resolve);
       writeStream.on('error', reject);
     });
 
