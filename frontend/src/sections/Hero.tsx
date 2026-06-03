@@ -91,6 +91,7 @@ export function Hero() {
             </p>
           )}
 
+          <div className="flex justify-center">
             <Button 
               onClick={buttonConfig.onClick}
               isPending={buttonConfig.isPending}
@@ -98,6 +99,7 @@ export function Hero() {
               >
               {buttonConfig.label}
             </Button>
+          </div>
 
         {isDone && (
           <p className="text-green-400 text-sm">
