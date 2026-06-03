@@ -1,44 +1,20 @@
-import { spawn } from 'child_process';
-import path from 'path';
-import fs from 'fs';
+import mammoth from 'mammoth';
+import PDFDocument from 'pdfkit';
 
 export async function convertDocxToPdf(inputPath: string): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const outputDir = path.dirname(inputPath);
+  const result = await mammoth.extractRawText({ path: inputPath });
 
-    const libreoffice = spawn('libreoffice', [
-      '--headless',
-      '--convert-to',
-      'pdf',
-      inputPath,
-      '--outdir',
-      outputDir,
-    ]);
+  const text = result.value;
 
-    let stderr = '';
+  return new Promise((resolve) => {
+    const doc = new PDFDocument();
+    const chunks: Buffer[] = [];
 
-    libreoffice.stderr.on('data', (data) => {
-      stderr += data.toString();
-    });
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
 
-    libreoffice.on('close', (code) => {
-      if (code !== 0) {
-        return reject(
-          new Error(`Erro na conversão: ${stderr}`)
-        );
-      }
+    doc.fontSize(12).text(text || 'Documento vazio');
 
-      const pdfPath = inputPath.replace(/\.docx$/, '.pdf');
-
-      if (!fs.existsSync(pdfPath)) {
-        return reject(
-          new Error('PDF não foi gerado')
-        );
-      }
-
-      const pdfBuffer = fs.readFileSync(pdfPath);
-
-      resolve(pdfBuffer);
-    })
-  })
+    doc.end();
+  });
 }
