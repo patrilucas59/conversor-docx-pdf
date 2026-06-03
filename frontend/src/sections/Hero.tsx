@@ -13,6 +13,7 @@ export function Hero() {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const isIdle = state === "idle";
   const isConverting = state === "converting";
   const isDone = state === "done";
 
@@ -91,6 +92,7 @@ export function Hero() {
             </p>
           )}
 
+        {!isIdle && (
           <div className="flex justify-center">
             <Button 
               onClick={buttonConfig.onClick}
@@ -100,6 +102,7 @@ export function Hero() {
               {buttonConfig.label}
             </Button>
           </div>
+        )}
 
         {isDone && (
           <p className="text-green-400 text-sm">
