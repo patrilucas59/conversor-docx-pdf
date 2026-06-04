@@ -1,6 +1,11 @@
 FROM node:18
 
-RUN apt-get update && apt-get install -y libreoffice
+RUN apt-get update && apt-get install -y \
+    libreoffice \
+    libreoffice-writer \
+    fonts-dejavu \
+    fonts-liberation \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

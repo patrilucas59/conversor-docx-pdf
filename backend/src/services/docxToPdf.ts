@@ -1,20 +1,30 @@
-import mammoth from 'mammoth';
-import PDFDocument from 'pdfkit';
+import os from 'os';
+import fs from 'fs';
+import path from 'path';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 export async function convertDocxToPdf(inputPath: string): Promise<Buffer> {
-  const result = await mammoth.extractRawText({ path: inputPath });
+  const outputDir = os.tmpdir();
 
-  const text = result.value;
+  await execAsync(
+    `soffice --headless --convert-to pdf "${inputPath}" --outdir "${outputDir}"`
+  );
 
-  return new Promise((resolve) => {
-    const doc = new PDFDocument();
-    const chunks: Buffer[] = [];
+  const pdfPath = path.join(
+    outputDir,
+    path.basename(inputPath, '.docx') + '.pdf'
+  );
 
-    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
+  if (!fs.existsSync(pdfPath)) {
+    throw new Error('PDF não foi gerado');
+  }
 
-    doc.fontSize(12).text(text || 'Documento vazio');
+  const pdfBuffer = fs.readFileSync(pdfPath);
 
-    doc.end();
-  });
+  fs.unlinkSync(pdfPath);
+
+  return pdfBuffer;
 }
