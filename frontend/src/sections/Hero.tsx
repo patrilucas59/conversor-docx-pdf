@@ -78,7 +78,7 @@ export function Hero() {
         <FileUpload 
           onFileSelect={handleFileSelect}
           onInvalidFile={() => 
-            enqueueSnackbar("Apenas documentos DOCX podem ser adicionados ´para conversão.", { 
+            enqueueSnackbar("Apenas documentos DOCX podem ser adicionados para conversão.", { 
               variant: "warning"
              })
           } 
