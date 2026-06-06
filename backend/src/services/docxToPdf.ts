@@ -8,10 +8,15 @@ const execAsync = promisify(exec);
 
 export async function convertDocxToPdf(inputPath: string): Promise<Buffer> {
   const outputDir = os.tmpdir();
+  
+  const sofficeCommand =
+    process.platform === 'win32'
+      ? '"C:\\Program Files\\LibreOffice\\program\\soffice.exe"'
+      : 'soffice';
 
-  await execAsync(
-    `soffice --headless --convert-to pdf "${inputPath}" --outdir "${outputDir}"`
-  );
+    await execAsync(
+      `${sofficeCommand} --headless --convert-to pdf "${inputPath}" --outdir "${outputDir}"`
+    );
 
   const pdfPath = path.join(
     outputDir,
@@ -22,9 +27,11 @@ export async function convertDocxToPdf(inputPath: string): Promise<Buffer> {
     throw new Error('PDF não foi gerado');
   }
 
-  const pdfBuffer = fs.readFileSync(pdfPath);
-
-  fs.unlinkSync(pdfPath);
-
-  return pdfBuffer;
+  try {
+    return fs.readFileSync(pdfPath);
+  } finally {
+    if (fs.existsSync(pdfPath)) {
+      fs.unlinkSync(pdfPath);
+    }
+  }
 }
