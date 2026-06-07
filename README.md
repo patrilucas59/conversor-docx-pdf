@@ -1,6 +1,11 @@
 # PDF Machine
 
-Aplicação web fullstack para conversão de arquivos DOCX em PDF de forma simples, rápida e segura.
+Aplicação web fullstack para conversão de arquivos DOCX em PDF de forma simples, rápida e segura,
+preservando formatação, imagens, tabelas e estilos do documento original.
+
+## Produção: https://pdf-machine.vercel.app
+
+---
 
 ## Tecnologias
 
@@ -18,6 +23,7 @@ Aplicação web fullstack para conversão de arquivos DOCX em PDF de forma simpl
 - LibreOffice (conversão DOCX → PDF)
 
 ### Infraestrutura
+- Docker
 - Render (backend)
 - Vercel (frontend)
 
@@ -60,8 +66,10 @@ npm run dev
 - Upload de arquivos DOCX
 - Validação de tipo de arquivo
 - Conversão automática para PDF
+- Preservação de fontes, imagens, tabelas e formatação
 - Download do arquivo convertido
 - Feedback visual (loading e notificações)
+- Tratamento de erros de upload e conversão
 
 ## Observações
 - Arquivos são armazenados temporariamente no servidor
