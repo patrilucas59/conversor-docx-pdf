@@ -10,6 +10,7 @@ export function Hero() {
   const [file, setFile] = useState<File | null>(null);
   const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
   const [state, setState] = useState<UploadState>("idle");
+  const [controller, setController] = useState<AbortController | null>(null);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -22,21 +23,50 @@ export function Hero() {
     setState("idle");
   }
 
+  function handleCancel() {
+    controller?.abort();
+
+    setState('idle');
+    setFile(null);
+    setPdfBlob(null);
+  }
+
   async function handleConvert() {
     if (!file) return;
 
+    const abortController = new AbortController();
+    
+    setController(abortController);
     setState("converting");
 
     try {
-    const blob = await convertDocxToPdf(file);
+    const blob = await convertDocxToPdf(
+      file, 
+      abortController.signal
+    );
+
     setPdfBlob(blob);
     setState("done");
-  } catch {
+  } catch (error: unknown) {
     setState("idle");
+
+    if (
+      error instanceof Error &&
+      error.message === 'Conversão cancelada pelo usuário'
+    ) {
+      enqueueSnackbar(
+        'A conversão foi cancelada com sucesso.',
+        { variant: 'info' }
+      );
+      return;
+    }
+
     enqueueSnackbar(
       "Erro ao converter o arquivo. Por favor, tente novamente.", 
       { variant: "error" }
     );
+  } finally {
+    setController(null);
   }
 }
 
@@ -99,6 +129,18 @@ export function Hero() {
               disabled={!file || isConverting}
               >
               {buttonConfig.label}
+            </Button>
+          </div>
+        )}
+
+        {isConverting && (
+          <div className='flex justify-center'>
+            <Button
+              color='error'
+              variant='solid' 
+              onClick={handleCancel}
+            >
+              Cancelar conversão
             </Button>
           </div>
         )}
